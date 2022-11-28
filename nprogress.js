@@ -3,12 +3,12 @@
 
 ;(function(root, factory) {
 
-  var locale = {}
+  let locale = {}
   if (
       localStorage.getItem('locale') !== null &&
       localStorage.getItem('locale') != 'undefined'
   ) {
-    var localeST = localStorage.getItem('locale')?.toString()?.split('|')
+    let localeST = localStorage.getItem('locale')?.toString()?.split('|')
 
     if (Array.isArray(localeST) && localeST?.length === 6) {
       locale =  {
