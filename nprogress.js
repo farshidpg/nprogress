@@ -226,7 +226,7 @@
     progress.innerHTML = Settings.template;
 
     var bar      = progress.querySelector(Settings.barSelector),
-        perc     = (document.documentElement.classList.contains('rtl') ? (fromStart ? '100' : toBarPerc(NProgress.status || 0)) : (fromStart ? '-100' : toBarPerc(NProgress.status || 0))),
+        perc     = (localStorage?.getItem('locale_dir') === 'rtl' || document.documentElement.classList.contains('rtl') ? (fromStart ? '100' : toBarPerc(NProgress.status || 0)) : (fromStart ? '-100' : toBarPerc(NProgress.status || 0))),
         parent   = document.querySelector(Settings.parent),
         spinner;
 
@@ -309,9 +309,7 @@
    */
 
   function toBarPerc(n) {
-
-    console.log(document.documentElement.classList.contains('rtl'))
-    if(document.documentElement.classList.contains('rtl')){
+    if(localStorage?.getItem('locale_dir') === 'rtl' || document.documentElement.classList.contains('rtl')){
       return 100 - (n * 100);
     }
     else{
