@@ -1,12 +1,12 @@
 /* NProgress, (c) 2013, 2014 Rico Sta. Cruz - http://ricostacruz.com/nprogress
  * @license MIT */
 
-;(function(root, factory) {
 
+function getLocaleNgProgress(){
   let locale = {}
   if (
       localStorage.getItem('locale') !== null &&
-      localStorage.getItem('locale') != 'undefined'
+      localStorage.getItem('locale') !== 'undefined'
   ) {
     let localeST = localStorage.getItem('locale')?.toString()?.split('|')
 
@@ -21,6 +21,12 @@
       }
     }
   }
+  return locale;
+}
+
+let ngProgressLocale = getLocaleNgProgress();
+
+;(function(root, factory) {
 
   if (typeof define === 'function' && define.amd) {
     define(factory);
@@ -245,7 +251,7 @@
     progress.innerHTML = Settings.template;
 
     var bar      = progress.querySelector(Settings.barSelector),
-        perc     = (locale?.direction === 'rtl' || document.documentElement.classList.contains('rtl') ? (fromStart ? '100' : toBarPerc(NProgress.status || 0)) : (fromStart ? '-100' : toBarPerc(NProgress.status || 0))),
+        perc     = (ngProgressLocale?.direction === 'rtl' || document.documentElement.classList.contains('rtl') ? (fromStart ? '100' : toBarPerc(NProgress.status || 0)) : (fromStart ? '-100' : toBarPerc(NProgress.status || 0))),
         parent   = document.querySelector(Settings.parent),
         spinner;
 
@@ -328,7 +334,7 @@
    */
 
   function toBarPerc(n) {
-    if(locale?.direction === 'rtl' || document.documentElement.classList.contains('rtl')){
+    if(ngProgressLocale?.direction === 'rtl' || document.documentElement.classList.contains('rtl')){
       return 100 - (n * 100);
     }
     else{
