@@ -3,6 +3,25 @@
 
 ;(function(root, factory) {
 
+  var locale = {}
+  if (
+      localStorage.getItem('locale') !== null &&
+      localStorage.getItem('locale') != 'undefined'
+  ) {
+    var localeST = localStorage.getItem('locale')?.toString()?.split('|')
+
+    if (Array.isArray(localeST) && localeST?.length === 6) {
+      locale =  {
+        language: localeST[0],
+        locale: localeST[1],
+        htmlLang: localeST[2],
+        htmlClass: localeST[3],
+        isRTL: localeST[4] === 'true',
+        direction: localeST[5],
+      }
+    }
+  }
+
   if (typeof define === 'function' && define.amd) {
     define(factory);
   } else if (typeof exports === 'object') {
@@ -226,7 +245,7 @@
     progress.innerHTML = Settings.template;
 
     var bar      = progress.querySelector(Settings.barSelector),
-        perc     = (localStorage?.getItem('locale_dir') === 'rtl' || document.documentElement.classList.contains('rtl') ? (fromStart ? '100' : toBarPerc(NProgress.status || 0)) : (fromStart ? '-100' : toBarPerc(NProgress.status || 0))),
+        perc     = (locale?.direction === 'rtl' || document.documentElement.classList.contains('rtl') ? (fromStart ? '100' : toBarPerc(NProgress.status || 0)) : (fromStart ? '-100' : toBarPerc(NProgress.status || 0))),
         parent   = document.querySelector(Settings.parent),
         spinner;
 
@@ -309,7 +328,7 @@
    */
 
   function toBarPerc(n) {
-    if(localStorage?.getItem('locale_dir') === 'rtl' || document.documentElement.classList.contains('rtl')){
+    if(locale?.direction === 'rtl' || document.documentElement.classList.contains('rtl')){
       return 100 - (n * 100);
     }
     else{
