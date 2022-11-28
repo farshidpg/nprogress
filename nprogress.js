@@ -18,11 +18,12 @@
 
   var Settings = NProgress.settings = {
     minimum: 0.08,
-    easing: 'linear',
+    easing: 'ease',
     positionUsing: '',
     speed: 200,
     trickle: true,
-    trickleSpeed: 200,
+    trickleRate: 0.02,
+    trickleSpeed: 800,
     showSpinner: true,
     barSelector: '[role="bar"]',
     spinnerSelector: '[role="spinner"]',
@@ -160,15 +161,9 @@
 
     if (!n) {
       return NProgress.start();
-    } else if(n > 1) {
-      return;
     } else {
       if (typeof amount !== 'number') {
-        if (n >= 0 && n < 0.2) { amount = 0.1; }
-        else if (n >= 0.2 && n < 0.5) { amount = 0.04; }
-        else if (n >= 0.5 && n < 0.8) { amount = 0.02; }
-        else if (n >= 0.8 && n < 0.99) { amount = 0.005; }
-        else { amount = 0; }
+        amount = (1 - n) * clamp(Math.random() * n, 0.1, 0.95);
       }
 
       n = clamp(n + amount, 0, 0.994);
@@ -177,7 +172,7 @@
   };
 
   NProgress.trickle = function() {
-    return NProgress.inc();
+    return NProgress.inc(Math.random() * Settings.trickleRate);
   };
 
   /**
@@ -204,10 +199,10 @@
       $promise.always(function() {
         current--;
         if (current === 0) {
-            initial = 0;
-            NProgress.done();
+          initial = 0;
+          NProgress.done();
         } else {
-            NProgress.set((initial - current) / initial);
+          NProgress.set((initial - current) / initial);
         }
       });
 
@@ -230,14 +225,10 @@
     progress.id = 'nprogress';
     progress.innerHTML = Settings.template;
 
-
-
-    var bar = progress.querySelector(Settings.barSelector),
-        perc = fromStart ? '-100' : toBarPerc(NProgress.status || 0),
-        parent = isDOM(Settings.parent)
-          ? Settings.parent
-          : document.querySelector(Settings.parent),
-        spinner
+    var bar      = progress.querySelector(Settings.barSelector),
+        perc     = (document.documentElement.classList.contains('rtl') ? (fromStart ? '100' : toBarPerc(NProgress.status || 0)) : (fromStart ? '-100' : toBarPerc(NProgress.status || 0))),
+        parent   = document.querySelector(Settings.parent),
+        spinner;
 
     css(bar, {
       transition: 'all 0 linear',
@@ -263,10 +254,7 @@
 
   NProgress.remove = function() {
     removeClass(document.documentElement, 'nprogress-busy');
-    var parent = isDOM(Settings.parent)
-      ? Settings.parent
-      : document.querySelector(Settings.parent)
-    removeClass(parent, 'nprogress-custom-parent')
+    removeClass(document.querySelector(Settings.parent), 'nprogress-custom-parent');
     var progress = document.getElementById('nprogress');
     progress && removeElement(progress);
   };
@@ -289,9 +277,9 @@
 
     // Sniff prefixes
     var vendorPrefix = ('WebkitTransform' in bodyStyle) ? 'Webkit' :
-                       ('MozTransform' in bodyStyle) ? 'Moz' :
-                       ('msTransform' in bodyStyle) ? 'ms' :
-                       ('OTransform' in bodyStyle) ? 'O' : '';
+        ('MozTransform' in bodyStyle) ? 'Moz' :
+            ('msTransform' in bodyStyle) ? 'ms' :
+                ('OTransform' in bodyStyle) ? 'O' : '';
 
     if (vendorPrefix + 'Perspective' in bodyStyle) {
       // Modern browsers with 3D support, e.g. Webkit, IE10
@@ -309,18 +297,6 @@
    * Helpers
    */
 
-  function isDOM (obj) {
-    if (typeof HTMLElement === 'object') {
-      return obj instanceof HTMLElement
-    }
-    return (
-      obj &&
-      typeof obj === 'object' &&
-      obj.nodeType === 1 &&
-      typeof obj.nodeName === 'string'
-    )
-  }
-
   function clamp(n, min, max) {
     if (n < min) return min;
     if (n > max) return max;
@@ -333,7 +309,14 @@
    */
 
   function toBarPerc(n) {
-    return (-1 + n) * 100;
+
+    console.log(document.documentElement.classList.contains('rtl'))
+    if(document.documentElement.classList.contains('rtl')){
+      return 100 - (n * 100);
+    }
+    else{
+      return (-1 + n) * 100;
+    }
   }
 
 
@@ -484,7 +467,7 @@
    */
 
   function classList(element) {
-    return (' ' + (element && element.className || '') + ' ').replace(/\s+/gi, ' ');
+    return (' ' + (element.className || '') + ' ').replace(/\s+/gi, ' ');
   }
 
   /**
